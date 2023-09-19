@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class UploadService {
-  uploadFile() {
-    return 'This action adds a new upload';
+  uploadFile(file) {
+    return 'Upload file successful.'
   }
 }
