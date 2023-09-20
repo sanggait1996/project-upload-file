@@ -1,4 +1,10 @@
-import { BadRequestException, Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { UploadService } from './upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -10,49 +16,57 @@ import { Request } from 'express';
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
-@Post('upload')
-@ApiConsumes('multipart/form-data')
-@ApiBody({
-  schema: {
-    type: 'object',
-    properties: {
-      file: {
-        type: 'string',
-        format: 'binary',
+  @Post('upload')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        fileName: {
+          type: 'string',
+        },
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
       },
-    },
-  },
-})
-@UseInterceptors(
-  FileInterceptor('file', {
-    storage: diskStorage({
-      destination: "./uploads",
-      filename: (req: Request, file, cb) => {
-        cb(null, `${file.originalname}`);
-      },
-    }),
-    fileFilter: (req: Request, file, cb) => {
-      const maxSizeInBytes = 1048576; // 1MB
-      if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
-        return cb(
-          new BadRequestException('Invalid file format. Only JPG and PNG files are allowed.'),
-          false
-        );
-      }
-
-      const fileSize = parseInt(req.headers['content-length'])
-      if(fileSize > maxSizeInBytes) {
-        return cb(
-          new BadRequestException('File size exceeds the maximum allowed size of 1MB.'),
-          false
-        )
-      }
-
-      cb(null, true);
     },
   })
-)
-async uploadFile(@UploadedFile() file: Express.Multer.File) {
-    return this.uploadService.uploadFile(file)
-}
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req: Request, file, cb) => {
+          console.log(req.body.fileName);
+          cb(null, `${file.originalname}`);
+        },
+      }),
+      fileFilter: (req: Request, file, cb) => {
+        const maxSizeInBytes = 1048576; // 1MB
+        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+          return cb(
+            new BadRequestException(
+              'Invalid file format. Only JPG and PNG files are allowed.',
+            ),
+            false,
+          );
+        }
+
+        const fileSize = parseInt(req.headers['content-length']);
+        if (fileSize > maxSizeInBytes) {
+          return cb(
+            new BadRequestException(
+              'File size exceeds the maximum allowed size of 1MB.',
+            ),
+            false,
+          );
+        }
+
+        cb(null, true);
+      },
+    }),
+  )
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    return this.uploadService.uploadFile(file);
+  }
 }
