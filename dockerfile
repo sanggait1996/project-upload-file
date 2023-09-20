@@ -6,6 +6,6 @@ RUN npm install --production
 
 COPY . /src
 
-EXPOSE 8085
+EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD ["node", "dist/main.js"]

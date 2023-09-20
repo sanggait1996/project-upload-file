@@ -1,6 +1,8 @@
 import {
   BadRequestException,
+  Body,
   Controller,
+  Get,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -10,19 +12,20 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
+import { CreateUploadDto } from './dto/create-upload.dto';
 
 @ApiTags('Upload File')
 @Controller('upload')
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
-  @Post('upload')
+  @Post()
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
-        fileName: {
+        filename: {
           type: 'string',
         },
         file: {
@@ -37,7 +40,6 @@ export class UploadController {
       storage: diskStorage({
         destination: './uploads',
         filename: (req: Request, file, cb) => {
-          console.log(req.body.fileName);
           cb(null, `${file.originalname}`);
         },
       }),
@@ -66,7 +68,14 @@ export class UploadController {
       },
     }),
   )
-  async uploadFile(@UploadedFile() file: Express.Multer.File) {
-    return this.uploadService.uploadFile(file);
+  async uploadFile(@UploadedFile() file: Express.Multer.File, @Body() createUploadDto: CreateUploadDto) {
+    createUploadDto.path = file.path
+    return await this.uploadService.uploadFile(createUploadDto);
+  }
+
+
+  @Get()
+  async getAllFiles() {
+    return this.uploadService.findAll();
   }
 }
