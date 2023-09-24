@@ -13,6 +13,8 @@ import { diskStorage } from 'multer';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { CreateUploadDto } from './dto/create-upload.dto';
+import { Upload } from './enitites/upload.entity';
+import { Express } from 'express';
 
 @ApiTags('Upload File')
 @Controller('upload')
@@ -68,14 +70,13 @@ export class UploadController {
       },
     }),
   )
-  async uploadFile(@UploadedFile() file: Express.Multer.File, @Body() createUploadDto: CreateUploadDto) {
-    createUploadDto.path = file.path
-    return await this.uploadService.uploadFile(createUploadDto);
+  async uploadFile(@UploadedFile() file: Express.Multer.File, @Body() createUploadDto: CreateUploadDto): Promise<Upload> {
+    return await this.uploadService.uploadFile(file ,createUploadDto);
   }
 
 
   @Get()
   async getAllFiles() {
-    return this.uploadService.findAll();
+    return await this.uploadService.findAll();
   }
 }

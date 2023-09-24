@@ -1,20 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { UploadDocument } from './schemas/upload.schema';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Upload } from './enitites/upload.entity';
+import { CreateUploadDto } from './dto/create-upload.dto';
 
 @Injectable()
 export class UploadService {
   constructor(
-    @InjectModel('Upload')
-    private readonly uploadModel: Model<UploadDocument>
+    @InjectRepository(Upload)
+    private readonly uploadRepository: Repository<Upload>,
   ){}
-  async uploadFile(createUploadDto) {
-    const newFile = new this.uploadModel(createUploadDto);
-    return newFile.save();
+  async uploadFile(file: Express.Multer.File, createUploadDto: CreateUploadDto) {
+    createUploadDto.path = file.path;
+    const newFile = this.uploadRepository.create(createUploadDto);
+    return this.uploadRepository.save(newFile);
   }
 
   async findAll() {
-    return await this.uploadModel.find().exec();
+    return await this.uploadRepository.find();
   }
 }

@@ -1,34 +1,40 @@
-version: '3.8'
+version: '3.5'
 
 services:
-  node-app:
-    build: .
-    image: node-app
+  db:
+    image: postgres:latest
+    restart: always
     environment:
-      - MONGODB_URL=mongodb://localhost:27017/test
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+    container_name: postgres
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
     ports:
-      - '8085:8085'
+      - '5432:5432'
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: project-upload-file
+    environment:
+      - PORT=3000
+    ports:
+      - '3000:3000'
     depends_on:
-      - mongodb
+      - db
     volumes:
-      - .:/src
-    networks:
-      - node-network
+      - ./src:/app/src
 
-  mongodb:
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    container_name: nest-pgadmin4
     environment:
-      - MONGODB_DATABASE='test'
-    image: mongo:6-jammy
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
     ports:
-      - '27017:27017'
-    volumes:
-      - dbdata6:/data/db
-    networks:
-      - node-network
-
-volumes:
-  dbdata6:
-
-networks:
-  node-network:
-    driver: bridge
+      - '5050:80'
+    depends_on:
+      - db
