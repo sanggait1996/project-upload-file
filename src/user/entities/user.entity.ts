@@ -24,6 +24,9 @@ export class User {
     @Column()
     address: string;
 
+    @Column({ nullable: true })
+    access_token?: string;
+
     @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
     createdAt: Date;
 
