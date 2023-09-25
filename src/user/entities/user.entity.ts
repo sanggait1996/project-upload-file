@@ -1,15 +1,28 @@
+
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
 
 @Entity()
-export class Upload {
+export class User {
     @PrimaryGeneratedColumn('uuid')
-    _id: string;
+    id: string;
 
     @Column()
-    filename: string;
+    name: string;
 
     @Column()
-    path: string;
+    email: string;
+
+    @Column()
+    password: string;
+
+    @Column()
+    age: number;
+
+    @Column()
+    gender: number;
+
+    @Column()
+    address: string;
 
     @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
     createdAt: Date;

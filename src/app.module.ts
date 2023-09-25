@@ -4,10 +4,11 @@ import { AppService } from './app.service';
 import { UploadModule } from './upload/upload.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm'
+import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true}),
-    UploadModule, 
+    ConfigModule.forRoot({ isGlobal: true}), 
     TypeOrmModule.forRoot({
       type: process.env.DB_TYPE as any,
       host: process.env.PG_HOST,
@@ -17,14 +18,14 @@ import { TypeOrmModule } from '@nestjs/typeorm'
       database: process.env.PG_DB,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
-      // migrationsTableName: 'test',
-      // migrations: ["migration/*.js"], 
-      // cli: { 
-      //   migrationsDir: 'migration'
-      //},
-    })
+    }), 
+    AuthModule,
+    UploadModule,
+    UserModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+  ],
 })
 export class AppModule {}
