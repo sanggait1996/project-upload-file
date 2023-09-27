@@ -31,7 +31,7 @@ export class AuthService {
     const payload = { sub: user.id, username: user.email };
     const access_token = await this.jwtService.signAsync(payload)
     const updatedUser = {...user, access_token: access_token}
-    this.userRepository.update(user.id, updatedUser);
+    await this.userRepository.update(user.id, updatedUser);
     return {
       access_token: access_token,
     };

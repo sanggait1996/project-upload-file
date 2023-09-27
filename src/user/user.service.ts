@@ -4,20 +4,28 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import * as argon2 from 'argon2'
+import * as argon2 from 'argon2';
+import { JwtService } from '@nestjs/jwt';
 
 
 @Injectable()
 export class UserService {
   constructor(
+    private jwtService: JwtService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ){}
   async create(createUserDto: CreateUserDto): Promise<User | undefined> {
     const user = this.userRepository.create(createUserDto);
-    const encryptedPassword = await this.hashPassword(user.password)
-    const newUser = {...user, password: encryptedPassword}
-    return this.userRepository.save(newUser);
+    const encryptedPassword = await this.hashPassword(user.password);
+    const access_token = await this.jwtService.signAsync({
+      sub: user.id,
+      username: user.email,
+    });
+    const newUser = { ...user, password: encryptedPassword, access_token };
+    await this.userRepository.save(newUser);
+    delete newUser.password;
+    return newUser;
   }
 
   async hashPassword(password: string) {
