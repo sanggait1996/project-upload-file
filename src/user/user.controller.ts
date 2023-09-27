@@ -2,10 +2,11 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@n
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiBody } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiHeader } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Public } from 'src/decorator/custom.decorator';
 
+@ApiBearerAuth()
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -36,14 +37,20 @@ export class UserController {
     },
   })
   @UseGuards(AuthGuard)
-  @Post()
   @Public()
+  @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
   @Get()
-  @Public()
+  @ApiHeader({
+    name: 'Authorization',
+    description: 'Bearer Token',
+    required: true,
+    example: 'Bearer your-access-token',
+  })
+  @UseGuards(AuthGuard)
   findAll() {
     return this.userService.findAll();
   }

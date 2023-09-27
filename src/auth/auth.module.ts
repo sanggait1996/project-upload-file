@@ -4,9 +4,12 @@ import { UserModule } from '../user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { jwtConstants } from './constants';
-import { UserService } from 'src/user/user.service';
+// import { UserService } from 'src/user/user.service';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
+import { TypeOrmModule } from '@nestjs/typeorm'
+// import { Repository } from 'typeorm';
+import { User } from 'src/user/entities/user.entity';
 
 @Module({
   imports: [
@@ -14,15 +17,19 @@ import { AuthGuard } from './auth.guard';
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '10000s' },
+      signOptions: { expiresIn: '72h' },
     }),
-    UserModule,
+    TypeOrmModule.forFeature([User])
   ],
-  providers: [AuthService, 
+  providers: [
+    AuthService, 
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    // UserService,
+    // Repository<User>,
+    
   ],
   controllers: [AuthController],
   exports: [AuthService],

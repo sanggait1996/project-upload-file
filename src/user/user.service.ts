@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import * as argon2 from 'argon2'
 
 
 @Injectable()
@@ -12,9 +13,15 @@ export class UserService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ){}
-  create(createUserDto: CreateUserDto): Promise<User | undefined> {
+  async create(createUserDto: CreateUserDto): Promise<User | undefined> {
     const user = this.userRepository.create(createUserDto);
-    return this.userRepository.save(user);
+    const encryptedPassword = await this.hashPassword(user.password)
+    const newUser = {...user, password: encryptedPassword}
+    return this.userRepository.save(newUser);
+  }
+
+  async hashPassword(password: string) {
+    return await argon2.hash(password);
   }
 
   findAll() {
@@ -40,9 +47,6 @@ export class UserService {
       return `cannot found user with id = ${id}`;
     }
     const userUpdate = { ...user, ...updateUserDto };
-    console.log(user);
-    console.log(updateUserDto);
-    console.log(userUpdate);
     return this.userRepository.update(id, userUpdate);
   }
 

@@ -6,6 +6,8 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { ElasticsearchModule } from '@nestjs/elasticsearch';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true}), 
@@ -18,7 +20,7 @@ import { AuthModule } from './auth/auth.module';
       database: process.env.PG_DB,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
-    }), 
+    }),
     AuthModule,
     UploadModule,
     UserModule,
